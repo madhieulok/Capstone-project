@@ -1,18 +1,18 @@
-#from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from rest_framework.authtoken.views import obtain_auth_token
 from . import views
 
-#import restaurant
-from rest_framework.authtoken.views import obtain_auth_token
+app_name = 'restaurant'
+
+menuitems_patterns = (
+    [
+        path('', views.MenuItemsView.as_view(), name = 'menu_items_list'),
+        path('<int:pk>', views.SingleMenuItemView.as_view()),
+    ], 'menuitems'
+)
 
 urlpatterns = [
-     path("index/", views.index),
-     #path('menu-items/', views.menu_items),
-    # add following lines to urlpatterns list
-     path('menu-items/', views.MenuItemsView.as_view()),
-     path('menu/<int:pk>', views.SingleMenuItemView.as_view()),
-     path('secret/', views.secret),
-     #path('menu/<int:id>', views.single_item),
-     
-     path('api-token-auth/', obtain_auth_token),
+    path('', views.index, name='index'),
+    path('items/', include(menuitems_patterns)),
+    path('api-token-auth/', obtain_auth_token)
 ]

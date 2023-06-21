@@ -4,58 +4,38 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework import generics
-from .models import MenuItem
-from .serializers import MenuItemSerializer
+from .models import Menu
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
-from django.shortcuts import get_object_or_404
+from restaurant.models import Menu, Booking
+from restaurant.serializers import MenuSerializer, BookingSerializer
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 
-class MenuItemsView(generics.ListCreateAPIView):
-    queryset = MenuItem.objects.all()
-    serializer_class = MenuItemSerializer
-    
-    
-class SingleMenuItemView(generics.RetrieveUpdateAPIView, generics.DestroyAPIView):
-    queryset = MenuItem.objects.all()
-    serializer_class = MenuItemSerializer
+class _LC:
+    TMPLT_INDEX = 'restaurant/index.html'
 
 
 def index(request):
-    return render(request, "index.html")
-
-@api_view()
-def menu_items(request):
-    items = MenuItem.objects.all()
-    serialized_itemn = MenuItemSerializer(items, many = True)
-    return Response(serialized_itemn.data)
-    #return Response(items.values())
-    
-@api_view()
-def single_item(request, id):
-    item = get_object_or_404 (MenuItem, pk=id)
-    serialized_itemn = MenuItemSerializer(item)
-    return Response(serialized_itemn.data)
+    return render(
+        request,
+        _LC.TMPLT_INDEX,
+        dict(),
+    )
 
 
-@api_view()
-@permission_classes([IsAuthenticated])
-def secret(request):
-    return Response({"message":"some secret message"})
-    
-    
-    
-  
-
-#from rest_framework import generics
-#from .models import MenuItem
-#from .serializers import MenuItemSerializer
+class MenuItemsView(generics.ListCreateAPIView):
+    queryset = Menu.objects.all()
+    serializer_class = MenuSerializer
 
 
-    
-#@api_view()
-#@permission_classes([IsAuthenticated])
+class SingleMenuItemView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Menu.objects.all()
+    serializer_class = MenuSerializer
 
-#def securedview(request):
-    #return Response({"message": "needs authentication"})
+
+class BookingViewSet(ModelViewSet):
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
+    permission_classes = [IsAuthenticated]
